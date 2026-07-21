@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 IT경진대회 모바일기반 기출문제</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Malgun Gothic', sans-serif;
+        }
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #app {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        /* 1단계: 정보 입력 로그인 화면 디자인 */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            padding: 30px 24px;
+            height: 100%;
+            justify-content: space-between;
+            background-color: #ffffff;
+        }
+        .login-header-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .login-form-group {
+            margin-bottom: 24px;
+        }
+        .login-form-group label {
+            display: block;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #000000;
+        }
+        .login-form-group select, .login-form-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 16px;
+            color: #333;
+            background-color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .login-form-group select:focus, .login-form-group input:focus {
+            border-color: #2563eb;
+        }
+        .login-form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23707070'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+        }
+        .btn-login-submit {
+            background-color: #2563eb;
+            color: #ffffff;
+            width: 100%;
+            padding: 18px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        /* 2단계: 연습 시작 대기 브릿지 화면 */
+        .bridge-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            height: 100%;
+            text-align: center;
+            background-color: #f8fafc;
+        }
+        .bridge-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 30px 20px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+        .btn-start-practice {
+            background-color: #10b981;
+            color: white;
+            width: 100%;
+            padding: 18px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 3단계: 메인 문제 풀이 전체 화면 컨테이너 */
+        .exam-main-container {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+        .header {
+            padding: 15px 20px;
+            background-color: #f0f4fc;
+            border-bottom: 1px solid #e0e8f5;
+            position: relative;
+            z-index: 10;
+        }
+        .dropdown-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 1px solid #dcdfe6;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            color: #3f51b5;
+        }
+        .dropdown-btn::after {
+            content: '▼';
+            font-size: 12px;
+            color: #707070;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 75px; left: 20px; right: 20px;
+            background-color: #ffffff;
+            border: 1px solid #dcdfe6;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 350px;
+            overflow-y: auto;
+            flex-direction: column;
+            padding: 8px 0;
+        }
+        .dropdown-menu.active { display: flex; }
+        .dropdown-item {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            color: #333;
+        }
+        .dropdown-item.saved {
+            background-color: #e8eaf6;
+            color: #3f51b5;
+            font-weight: bold;
+        }
+        .dropdown-footer-btn {
+            background-color: #3f51b5;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 0 0 11px 11px;
+        }
+
+        /* 문제 디스플레이 컨텐츠 */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .question-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .question-box {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            word-break: keep-all;
+        }
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            line-height: 1.4;
+        }
+        .option-btn.selected {
+            border-color: #2563eb;
+            background-color: #f0f6ff;
+            font-weight: bold;
+        }
+
+        /* 서술형 및 실무 특수 컴포넌트 */
+        .subjective-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .task-box {
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .task-app-btn {
+            background-color: #ff9800;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 가상 단독 앱 시뮬레이터 */
+        .fullscreen-app-layer {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ffffff;
+            z-index: 50;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .app-header {
+            color: white; padding: 15px; font-weight: bold; margin-bottom: 20px; text-align: center; border-radius: 8px; font-size: 18px;
+        }
+        .task-input-group { margin-bottom: 16px; }
+        .task-input-group label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #4a5568; }
+        .task-input-group input, .task-input-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; }
+
+        /* 하단 컨트롤러 바 */
+        .footer {
+            padding: 15px 20px;
+            background-color: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 15px 0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-status { background-color: #e2e8f0; color: #4a5568; }
+        .btn-save { background-color: #2563eb; color: #ffffff; }
+        .btn-next { background-color: #0f172a; color: #ffffff; }
+        .btn-prev { background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+
+        /* 정답 모달 */
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-height: 90%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; text-align: center; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+        .status-list { display: flex; flex-direction: column; overflow-y: auto; flex: 1; margin-bottom: 15px; }
+        .status-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 15px; cursor: pointer; }
+        .status-row.done { color: #2563eb; font-weight: bold; background-color: #f0f6ff; }
+        .btn-submit { background-color: #d32f2f; color: white; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-bottom: 8px; text-align: center; }
+        .modal-close { background-color: #707070; color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; }
+
+        /* 완결 화면 */
+        .finish-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 30px 20px;
+            height: 100%;
+            background-color: #ffffff;
+            overflow-y: auto;
+        }
+        .finish-icon { font-size: 54px; color: #4caf50; margin-bottom: 10px; }
+        .finish-title { font-size: 22px; font-weight: bold; color: #1e3a8a; margin-bottom: 10px; }
+        .finish-text { font-size: 15px; color: #4a5568; line-height: 1.5; margin-bottom: 20px; }
+        .result-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 16px; width: 100%; margin-bottom: 20px; text-align: left; }
+        .result-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; border-bottom: 1px dashed #e2e8f0; }
+        .result-row:last-child { border-bottom: none; }
+        
+        .btn-check-answers {
+            background-color: #3f51b5;
+            color: #ffffff;
+            width: 100%;
+            padding: 16px 0;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(63, 81, 181, 0.15);
+        }
+
+        .report-section {
+            display: none;
+            width: 100%;
+            margin-top: 10px;
+            border-top: 2px solid #3f51b5;
+            padding-top: 20px;
+        }
+        .report-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .report-table th, .report-table td {
+            padding: 10px 6px;
+            border: 1px solid #cbd5e1;
+            word-break: keep-all;
+        }
+        .report-table th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+            color: #334155;
+        }
+        .report-table tr.wrong-row {
+            background-color: #fff1f2;
+            color: #e11d48;
+            font-weight: bold;
+        }
+        .report-table tr.wrong-row td {
+            border-color: #fca5a5;
+        }
+        .text-correct { color: #16a34a; font-weight: bold; }
+        .text-wrong { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    
+    <div class="login-screen" id="loginScreen">
+        <div>
+            <div class="login-header-title">2026년 IT경진대회 모바일기반</div>
+            
+            <div class="login-form-group">
+                <label>1. 참가부문</label>
+                <select id="userCategory">
+                    <option value="" disabled selected>참가 부문을 선택하세요</option>
+                    <option value="고령층">고령층</option>
+                    <option value="장년층">장년층</option>
+                    <option value="다문화">다문화</option>
+                </select>
+            </div>
+
+            <div class="login-form-group">
+                <label>2. 접수번호</label>
+                <input type="text" id="userRegNo" placeholder="영문자 및 숫자 9자리" maxlength="9">
+            </div>
+
+            <div class="login-form-group">
+                <label>3. 성명</label>
+                <input type="text" id="userName" placeholder="참가자 본인 성명">
+            </div>
+        </div>
+        
+        <button class="btn-login-submit" onclick="validateAndMoveToBridge()">시험 입장하기 →</button>
+    </div>
+
+    <div class="bridge-screen" id="bridgeScreen">
+        <div class="bridge-card">
+            <h2 style="color:#1e3a8a; margin-bottom:15px; font-size:22px;">수험자 인증 확인</h2>
+            <p id="bridgeInfoText" style="font-size:16px; color:#475569; line-height:1.6;"></p>
+            <p style="margin-top:15px; font-size:14px; color:#ef4444; font-weight:bold;">※ 준비가 완료되면 아래 버튼을 눌러 시작하세요.</p>
+        </div>
+        <button class="btn-start-practice" onclick="startExamReal()">시험 연습 시작하기</button>
+    </div>
+
+    <div class="exam-main-container" id="examMainContainer">
+        <div class="header" id="mainHeader">
+            <div class="dropdown-btn" id="dropdownBtn" onclick="toggleDropdown()">문제 1</div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div id="dropdownItemsContainer" style="display: flex; flex-direction: column; overflow-y: auto;"></div>
+                <div class="dropdown-footer-btn" onclick="openStatusFromDropdown()">현황표 열기</div>
+            </div>
+        </div>
+
+        <div class="content" id="mainContent">
+            <div id="questionContent" class="question-container"></div>
+        </div>
+
+        <div class="footer" id="footerButtons"></div>
+    </div>
+
+    <div class="fullscreen-app-layer" id="fullscreenAppLayer"></div>
+
+    <div class="finish-screen" id="finishScreen">
+        <div class="finish-icon">✓</div>
+        <div class="finish-title">시험이 완료되었습니다!</div>
+        <div class="finish-text">
+            답안 제출이 정상적으로 완료되었습니다.<br>수고하셨습니다.
+        </div>
+        <div class="result-box">
+            <div class="result-row"><strong>응시 부문:</strong> <span id="finalCategory">-</span></div>
+            <div class="result-row"><strong>성명:</strong> <span id="finalName">-</span></div>
+            <div id="resSaved" class="result-row"><strong>저장된 답안:</strong> <span>0건</span></div>
+            <div id="resEmpty" class="result-row"><strong>미입력 문항:</strong> <span>21건</span></div>
+        </div>
+        
+        <button class="btn-check-answers" id="btnCheckAnswers" onclick="showAnswerReportTable()">정답 확인하기</button>
+        
+        <div class="report-section" id="reportSection">
+            <div class="report-title">📊 기출문제 채점 및 정답 비교표</div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">번호</th>
+                        <th style="width: 30%;">내가 적은 답</th>
+                        <th style="width: 35%;">실제 정답</th>
+                        <th style="width: 20%;">결과</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <p style="color:#a0aec0; font-size:12px; width:100%; text-align:center; margin-bottom:20px;">본 프로그램은 시뮬레이션용 기출 연습 도구입니다.</p>
+    </div>
+</div>
+
+<div class="modal" id="statusModal">
+    <div class="modal-content">
+        <div class="modal-header">정답 제출 현황표</div>
+        <div class="status-list" id="statusList"></div>
+        <button class="btn-submit" onclick="submitExam()">제출하기</button>
+        <button class="modal-close" onclick="closeModal()">닫기</button>
+    </div>
+</div>
+
+<script>
+    // 1번째 파일의 2026 IT경진대회 문제와 정답 정보 연동
+    const questions = [
+        { id: 1, type: 'choice', q: "다음 중 \"무릎 관절염에 좋은 운동법\"을 알아내기 위해 생성형 AI에게 던진 질문 중, 가장 구체적이고 원하는 결과를 정확하게 얻을 수 있는 질문(프롬프트)은 무엇일까요?", options: ["운동 알려줘", "등산하면 무릎에 좋아?", "무릎 아픈데 어떡해?", "관절염 치료제 이름 다 알려줘", "60대 초반 여성이 집 거실에서 도구 없이 안전하게 따라 할 수 있는 '무릎 관절 강화 운동' 3가지를 주의사항과 함께 알려줘"], answer: 5 },
+        { id: 2, type: 'choice', q: "생성형 AI 검색창에 \"모바일 은행 앱을 사용할 때 내 금융 정보를 안전하게 지키는 방법\"을 질문했습니다. AI가 알려준 보안 수칙 중 가장 올바르지 않은 행동은 무엇일까요?", options: ["스마트폰 비밀번호나 은행 보안카드 사진을 갤러리(앨범)에 저장해 두지 않는다.", "공공장소의 비밀번호가 없는 공용 와이파이(Wi-Fi)에 연결한 상태로 금융 거래를 하는 것은 피한다.", "문자로 온 정체불명의 인터넷 주소(링크)는 절대 누르지 않는다.", "은행 앱 비밀번호는 기억하기 쉽게 '1234'나 생년월일로 설정하고, 잊어버릴 것에 대비해 메모지에 적어 스마트폰 뒤에 붙여둔다.", "출처가 불분명한 앱(프로그램)은 스마트폰에 설치하지 않는다."], answer: 4 },
+        { id: 3, type: 'choice', q: "대체공휴일은 법정 공휴일이 주말(토요일·일요일)이나 다른 공휴일과 겹쳐 본래 쉬어야 할 휴일이 줄어드는 것을 막기 위해, 그다음으로 돌아오는 첫 번째 평일을 공휴일로 지정해 쉬도록 보장하는 제도입니다. 다음 중 2027년 대체공휴일이 아닌 날짜를 찾아보세요.", options: ["2027년 2월 9일", "2027년 6월 7일", "2027년 8월 16일", "2027년 10월 4일", "2027년 10월 11일"], answer: 2 },
+        { id: 4, type: 'choice', q: "전통 마당 놀이를 극장 무대로 올려 현대적 무대 예술의 극치를 보여준 단체 '연희단 팔산대'의 대표이자 명인이 있습니다. 이 명인이 유랑예인 집단에서 다진 본바탕 예력을 바탕으로, 무대 위에서 폭발적인 에너지와 완벽한 완급 조절을 선보이며 독무(Solo)의 경지로 승화시킨 그의 주종목을 찾아보세요.", options: ["살풀이춤", "진도북춤", "채상소고춤", "태평무", "한량무"], answer: 3 },
+        { id: 5, type: 'choice', q: "2026년 북중미 월드컵 본선 진출국 중 인구수가 가장 적은 국가의 수도이자, 알록달록한 네덜란드식 건축물로 유네스코 세계문화유산에 등재된 도시는 어디인가요?", options: ["레이캬비크 (Reykjavík)", "프라이아(Praia)", "빌렘스타트 (Willemstad)", "하바나 (Havana)", "도하 (Doha)"], answer: 3 },
+        { id: 6, type: 'choice', q: "국립고궁박물관과 대통령기록관이 공동 주최하는 특별전 「선물과 기록, 한국-프랑스 우정의 140년」은 대한민국 대통령기록관 소장 유물을 비롯하여 프랑스 세브르도자박물관, 기메박물관 등 국내외 유관 기관의 귀중한 외교 사료와 선물을 한데 모은 순회 전시입니다. 다음 중 이번 전시 유물 중에서 원래 국립고궁박물관이 소장하고 있는 유물은 무엇입니까?", options: ["백색 채색 접시", "백자 채색 살라미나 병", "옹기주병", "청자 모란 넝쿨무늬 꽃모양 대접", "청자 상감 매화문병"], answer: 2 },
+        { id: 7, type: 'choice', q: "다음 내용은 행정안전부가 선정한 '2026 찾아가고 싶은 섬' 88곳 중 하나로, 경상남도 거제시에 위치한 이 섬은 어디일까요?\n\n섬 전체의 70%가 동백나무로 덮여 있어 동백섬이라는 아름다운 별칭을 가지고 있습니다. 한편으로는 일제강점기 일본군의 요새로 사용되었던 포진지와 탄약고 등 아픈 역사의 흔적이 고스란히 남아있는 곳이기도 합니다.", options: ["가조도", "산달도", "이수도", "지심도", "칠천도"], answer: 4 },
+        { id: 8, type: 'choice', q: "영화 <부고니아(Bugonia)>는 요르고스 란티모스 감독이 연출하고 엠마 스톤이 주연을 맡아 아카데미 시상식 작품상 및 여우주연상 후보에 올랐습니다. 이 영화의 원작이 된 대한민국 극장 개봉 오리지널 영화와 그 한국인 감독은 누구인가요?", options: ["봉준호 감독의 《기생충》", "박찬욱 감독의 <올드보이>", "장준환 감독의 <지구를 지켜라!>", "황동혁 감독의 <오징어 게임>", "연상호 감독의 <부산행>"], answer: 3 },
+        { id: 9, type: 'choice', q: "다음 중 공식 운항시간표를 참조하여 한강버스를 타고 '도중에 내리거나 갈아타지 않고 자리에 그대로 앉아 이동할 때', 목적지 도착까지 가장 오래 걸리는(또는 이동이 불가능한) 구간은 어디일까요?(한강버스 공식 홈페이지 기준)", options: ["마곡 ↔ 망원", "망원 ↔ 여의도", "압구정 ↔ 서울숲", "여의도 ↔ 옥수", "옥수 ↔ 압구정"], answer: 5 },
+        { id: 10, type: 'choice', q: "다음 캐릭터에 대한 설명으로 옳지 않은 것은?\n① 일본어, 영어, 중국어, 한국어를 능숙하게 구사하며, 자신이 떠올리는 '소리'를 마법처럼 울릴 수 있다.\n② '호노혼'이라는 이름은 불꽃의 어원으로 알려진 '불의 이삭'이라는 뜻의 '호노호'에서 이름이 유래됐다.\n③ 오른손(그림 왼쪽)은 손바닥을 활짝 펴서 인사를 건네는 포즈를 취하고 있고, 왼손(그림 오른쪽)은 주먹을 쥐고 있다.\n④ 호노톤의 눈 주위에는 일본 공연예술인 가부키에서 사용되는 화장법 '붉은 구마도리'가 그려졌다.\n⑤ 큰 눈은 아시아 선수들의 활약을 지켜보는 의미, 웃는 표정은 선수와 관람객을 향한 친근함과 환영의 메시지를 담고 있다.", options: ["설명 ①", "설명 ②", "설명 ③", "설명 ④", "설명 ⑤"], answer: 1 },
+        { id: 11, type: 'choice', q: "다음은 세계적인 건축 거장들이 설계한 국내 건축물에 대한 설명이다. 가장 올바른 추론이나 분석을 한 사람은 누구인가요?", options: ["민우: \"여성의 유려한 곡선미를 강조한 3차원 비정형 건축물인 《DDP》와 전통 학춤의 실루엣을 시각화한 《루이비통 메종 서울》은 모두 2000년대에 프리츠커상을 수상한 건축가들의 작품이군.\"", "지수: \"빛의 투명도 변화를 활용한 《용산 아모레퍼시픽 사옥》의 설계자와 백색 면에 은은한 자연광을 들인 《파주 미메시스 아트 뮤지엄》의 설계자는 둘 다 21세기에 프리츠커상을 받았다.\"", "찬우: \"자연 요소를 적극적으로 끌어들이는 안도 다다오와 파격적인 해체주의를 선보인 렘 콜하스는 모두 서울 마곡 지구에 대표적인 건축물을 남겼군.\"", "서연: \"퐁피두 센터를 설계한 건축가가 참여한 《여의도 파크원》과 《베이징 올림픽 주경기장》을 설계한 듀오가 참여한 《ST 송은 빌딩》은 모두 건물의 구조나 마감재를 외부로 솔직하게 드러내는 공통점이 있어.\"", "성현: \"전통 달항아리에서 영감을 얻은 건축물의 설계자와 친환경 종이 지관 구조로 유명한 《여주 클럽하우스》의 설계자는 프리츠커상을 수상한 지 정확히 11년의 시차가 존재하네.\""], answer: 4 },
+        { id: 12, type: 'choice', q: "김씨 일행은 오늘 아침 인천을 출발해 일본 홋카이도 신치토세 공항에 도착했습니다. 김씨 일행 총 3명은 삿포로 중심가로 이동하기 전, 공항이 있는 '치토세시(千歳市)'의 한 호텔에서 1박을 트리플룸(3인실)에서 하기로 하고 한국에서 총 3만 엔을 사전 결제했습니다. 호텔 체크인을 하려는데, 직원이 2026년 4월부터 도입된 '숙박세(Accommodation Tax)'를 현장에서 별도로 내야 한다고 안내합니다. 김 씨 일행의 숙박세 총 금액은 얼마일까요?", options: ["300엔", "400엔", "600엔", "900엔", "1200엔"], answer: 1 },
+        { id: 13, type: 'choice', q: "다음은 국가유산포털의 내용으로 작성된 국보 문화재 안내판의 설명입니다. 이 설명 가운데 잘못된 내용을 찾아보세요.", options: ["신라 지증왕 4년(503)", "1989년 4월", "진이마촌의 절거리(節居利)", "소를 잡아 하늘의 뜻을 묻는 제천의식", "앞면 7행 57자, 뒷면에 5행 20자, 499자 판독 가능"], answer: 5 },
+        { id: 14, type: 'subjective', q: "(주관식) 2026년, 전 세계의 이목이 집중되는 국제 행사의 성공적인 개최를 기원하며 삼면이 바다로 둘러싸인 아름다운 반도 지역에서 KBS <전국노래자랑>이 열렸습니다. 시원한 백사장을 배경으로 해수욕장 특설무대에서 녹화가 진행된 이곳(○○○○○편)은 어디일까요?", answer: "충남 태안군편" },
+        { id: 15, type: 'subjective', q: "(주관식) 다음 사진은 자연 그대로의 사암 절벽 벽면에 커다란 쇠닻이 고정되어 있고, 그 옆에는 오래된 사건을 기리는 기념 명판이 세워져 있습니다. 사진 위쪽으로는 안전 펜스와 코스탈 관목이 보이며, 이곳은 탁 트인 해안 전망으로 유명한 공원의 일부입니다. 이 기념물이 있는 공원의 이름을 찾아보세요(한글 또는 영문).", answer: "GAP PARK" },
+        { id: 16, type: 'choice', q: "인천공항에서 운행하는 다음 셔틀버스 노선 중, 제2여객터미널에서 제1여객터미널로 이동할 수 있는 노선번호를 찾아보세요.", options: ["공항 01", "공항 02", "공항 03", "공항 04", "공항 05"], answer: 3 },
+        { id: 17, type: 'choice', q: "다음 중 대전 '유성온천공원 족욕체험장'과 실제 거리가 가장 가까운 위치는 어디일까요?", options: ["갑천역 1번 출구", "갑천역 3번 출구", "유성온천역 5번 출구", "유성온천역 7번 출구", "버스정류장번호 41270"], answer: 4 },
+        { id: 18, type: 'subjective', q: "(주관식) 대한출판문화협회가 2026년 서울국제도서전을 앞두고 '한국에서 가장 좋은 책' 40종을 선정했습니다. 아래 바코드가 나타내는 책의 제목을 찾아 적어보세요(한글).", answer: "흙의 숨" },
+        { id: 19, type: 'subjective', q: "(주관식) 아래의 \"Attached_file.zip\"안에 고대 로마 도시명이 적힌 파일(영문파일명)이 있습니다. 해당 도시의 이름을 찾아보세요.", answer: "Herculaneum" },
+        { id: 20, type: 'task20', q: "(작업형) 다음 안내에 따라 'Nbank' 아이콘을 터치하여 '여행자예금' 가입을 시작합니다. 가입 금액은 5백만 원, 약정 기간은 12개월로 합니다. 만기 시 별도 방문 없이 '자동해지'되도록 지정하고, 신규 비밀번호는 기존 출금 계좌 비밀번호(7562)와 똑같이 사용합니다. 모든 가입 절차가 정상적으로 끝나면 '확인'을 터치하여 작업을 완료합니다.", answer: "가입 완료" },
+        { id: 21, type: 'task21', q: "(실무형) 통신요금 약정할인 신청을 위한 본인인증 안내입니다. 아래의 양식에 가입자 정보(홍길동 / 1967년 7월 15일생 / 010-6789-2345)를 입력하신 후, 자동등록방지(캡차인증) 및 '인증요청하기'로 가입자 인증을 완료해 주시기 바랍니다(자동등록방지 값은 고정 값입니다).", answer: "인증 완료" }
+    ];
+
+    let currentIdx = 0; 
+    let savedAnswers = {}; 
+    let userData = { category: '', regNo: '', name: '' };
+
+    window.onload = function() {
+        initDropdownMenu();
+    };
+
+    function validateAndMoveToBridge() {
+        const cat = document.getElementById('userCategory').value;
+        const reg = document.getElementById('userRegNo').value.trim();
+        const name = document.getElementById('userName').value.trim();
+
+        if(!cat) { alert('참가 부문을 선택해 주세요.'); return; }
+        if(!reg) { alert('접수 번호를 입력해 주세요.'); return; }
+        if(!name) { alert('성명을 입력해 주세요.'); return; }
+
+        userData.category = cat;
+        userData.regNo = reg;
+        userData.name = name;
+
+        document.getElementById('bridgeInfoText').innerHTML = `
+            반갑습니다, <strong>${name}</strong> 님!<br>
+            선택 부문: <strong>${cat}</strong> | 접수 번호: <strong>${reg}</strong>
+        `;
+
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('bridgeScreen').style.display = 'flex';
+    }
+
+    function startExamReal() {
+        document.getElementById('bridgeScreen').style.display = 'none';
+        document.getElementById('examMainContainer').style.display = 'flex';
+        renderQuestion();
+    }
+
+    function initDropdownMenu() {
+        const container = document.getElementById('dropdownItemsContainer');
+        container.innerHTML = '';
+        questions.forEach((q, idx) => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.id = `dd-item-${q.id}`;
+            item.innerText = `문제 ${q.id}`;
+            item.onclick = () => {
+                currentIdx = idx;
+                renderQuestion();
+                toggleDropdown();
+            };
+            container.appendChild(item);
+        });
+    }
+
+    function toggleDropdown() {
+        document.getElementById('dropdownMenu').classList.toggle('active');
+    }
+
+    function openStatusFromDropdown() {
+        toggleDropdown();
+        openModal();
+    }
+
+    function renderQuestion() {
+        const currentQ = questions[currentIdx];
+        document.getElementById('dropdownBtn').innerText = `문제 ${currentQ.id}`;
+        
+        questions.forEach(q => {
+            const item = document.getElementById(`dd-item-${q.id}`);
+            if(savedAnswers[q.id] !== undefined && savedAnswers[q.id] !== '') {
+                item.classList.add('saved');
+            } else {
+                item.classList.remove('saved');
+            }
+        });
+
+        document.getElementById('fullscreenAppLayer').style.display = 'none';
+        const container = document.getElementById('questionContent');
+        container.innerHTML = '';
+
+        const qBox = document.createElement('div');
+        qBox.className = 'question-box';
+        qBox.innerText = `[문제 ${currentQ.id}] ${currentQ.q}`;
+        container.appendChild(qBox);
+
+        if (currentQ.type === 'choice') {
+            const optContainer = document.createElement('div');
+            optContainer.className = 'options-container';
+            
+            currentQ.options.forEach((opt, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (savedAnswers[currentQ.id] === (oIdx + 1)) {
+                    btn.classList.add('selected');
+                }
+                btn.innerText = `${oIdx + 1}. ${opt}`;
+                btn.onclick = () => {
+                    const buttons = optContainer.querySelectorAll('.option-btn');
+                    buttons.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    savedAnswers[currentQ.id] = oIdx + 1;
+                };
+                optContainer.appendChild(btn);
+            });
+            container.appendChild(optContainer);
+
+        } else if (currentQ.type === 'subjective') {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'subjective-input';
+            input.placeholder = '여기에 정답을 입력하세요.';
+            input.value = savedAnswers[currentQ.id] || '';
+            input.oninput = (e) => {
+                savedAnswers[currentQ.id] = e.target.value;
+            };
+            container.appendChild(input);
+
+        } else if (currentQ.type === 'task20' || currentQ.type === 'task21') {
+            const taskIntroBox = document.createElement('div');
+            taskIntroBox.className = 'task-box';
+            
+            const btnName = currentQ.type === 'task20' ? 'Nbank 여행자예금 가입 실행' : '통신요금 본인인증 실행';
+            taskIntroBox.innerHTML = `
+                <p style="margin-bottom:15px; color:#64748b; font-size:14px;">아래 버튼을 누르면 해당 가상 실무 화면으로 전환됩니다.</p>
+                <button class="task-app-btn" onclick="openFullscreenApp('${currentQ.type}')">${btnName}</button>
+            `;
+            container.appendChild(taskIntroBox);
+        }
+
+        renderFooterButtons();
+    }
+
+    function openFullscreenApp(type) {
+        const appLayer = document.getElementById('fullscreenAppLayer');
+        appLayer.innerHTML = '';
+        appLayer.style.display = 'flex';
+
+        if(type === 'task20') {
+            appLayer.innerHTML = `
+                <div class="app-header" style="background:#3f51b5;">Nbank 여행자예금 가입</div>
+                <div style="flex:1; overflow-y:auto;">
+                    <div class="task-input-group"><label>가입 금액</label><input type="text" id="depositAmt" value="5000000" placeholder="500만 원"></div>
+                    <div class="task-input-group"><label>약정 기간</label><select id="depositTerm"><option value="12">12개월</option></select></div>
+                    <div class="task-input-group"><label>만기 해지방식</label><select id="depositAuto"><option value="자동해지">자동해지</option></select></div>
+                    <div class="task-input-group"><label>신규 비밀번호 (기존 출금계좌 비밀번호 입력)</label><input type="password" id="depositPw" maxlength="4" placeholder="비밀번호 4자리"></div>
+                </div>
+                <div class="footer" style="padding:10px 0 0 0; border-top:1px solid #e2e8f0;"><button class="btn btn-prev" onclick="closeFullscreenApp()">취소</button><button class="btn btn-save" style="background:#3f51b5;" onclick="submitTask20()">확인(가입완료)</button></div>
+            `;
+            if(savedAnswers[20] === '가입 완료') {
+                document.getElementById('depositPw').value = '7562';
+            }
+        } else if(type === 'task21') {
+            appLayer.innerHTML = `
+                <div class="app-header" style="background:#0f172a;">통신요금 약정할인 본인인증</div>
+                <div style="flex:1; overflow-y:auto;">
+                    <div class="task-input-group"><label>성명</label><input type="text" id="pName21" placeholder="홍길동"></div>
+                    <div class="task-input-group"><label>생년월일 (YYYYMMDD 8자리)</label><input type="text" id="pBirth21" maxlength="8" placeholder="19670715"></div>
+                    <div class="task-input-group"><label>전화번호 ('-' 없이 입력)</label><input type="text" id="pPhone21" placeholder="01067892345"></div>
+                    <div class="task-input-group"><label>자동등록방지 문자</label><input type="text" id="pCaptcha21" value="F9ZQA9" readonly style="background:#f1f5f9;"></div>
+                    <div class="task-input-group"><label>보안문자 입력</label><input type="text" id="pCaptchaInput21" placeholder="위 보안문자 입력"></div>
+                </div>
+                <div class="footer" style="padding:10px 0 0 0; border-top:1px solid #e2e8f0;"><button class="btn btn-prev" onclick="closeFullscreenApp()">취소</button><button class="btn btn-save" style="background:#0f172a;" onclick="submitTask21()">인증요청하기</button></div>
+            `;
+            if(savedAnswers[21] === '인증 완료') {
+                document.getElementById('pName21').value = '홍길동';
+                document.getElementById('pBirth21').value = '19670715';
+                document.getElementById('pPhone21').value = '01067892345';
+                document.getElementById('pCaptchaInput21').value = 'F9ZQA9';
+            }
+        }
+    }
+
+    function closeFullscreenApp() { document.getElementById('fullscreenAppLayer').style.display = 'none'; }
+
+    function submitTask20() {
+        const pw = document.getElementById('depositPw').value;
+        if(pw === '7562') {
+            alert('여행자예금 가입이 정상적으로 완료되었습니다.');
+            savedAnswers[20] = '가입 완료';
+            closeFullscreenApp();
+            renderQuestion();
+        } else { alert('비밀번호가 기존 출금 계좌 비밀번호(7562)와 일치하지 않습니다.'); }
+    }
+
+    function submitTask21() {
+        const name = document.getElementById('pName21').value.trim();
+        const birth = document.getElementById('pBirth21').value.trim();
+        const phone = document.getElementById('pPhone21').value.trim();
+        const captcha = document.getElementById('pCaptchaInput21').value.trim();
+
+        if(name === '홍길동' && birth === '19670715' && phone === '01067892345' && captcha === 'F9ZQA9') {
+            alert('가입자 인증이 완료되었습니다.');
+            savedAnswers[21] = '인증 완료';
+            closeFullscreenApp();
+            renderQuestion();
+        } else { alert('입력 정보 또는 자동등록방지 문자가 올바르지 않습니다.'); }
+    }
+
+    function renderFooterButtons() {
+        const currentQ = questions[currentIdx];
+        const footer = document.getElementById('footerButtons');
+        footer.innerHTML = '';
+
+        if (currentQ.id === 1) {
+            footer.innerHTML = `
+                <button class="btn btn-status" onclick="openModal()">현황표</button>
+                <button class="btn btn-save" onclick="saveBtnSilent()">답안저장</button>
+                <button class="btn btn-next" onclick="moveNext()">다음</button>
+            `;
+        } else {
+            footer.innerHTML = `
+                <button class="btn btn-prev" onclick="movePrev()">이전</button>
+                <button class="btn btn-save" onclick="saveBtnSilent()">답안저장</button>
+                <button class="btn btn-next" onclick="moveNext()">다음</button>
+            `;
+        }
+    }
+
+    function saveBtnSilent() {
+        renderQuestion();
+    }
+
+    function moveNext() {
+        if (currentIdx < questions.length - 1) {
+            currentIdx++;
+            renderQuestion();
+        } else { alert("마지막 문제입니다. 현황표를 열어 제출을 진행하세요."); }
+    }
+
+    function movePrev() {
+        if (currentIdx > 0) { currentIdx--; renderQuestion(); }
+    }
+
+    function openModal() {
+        const listContainer = document.getElementById('statusList');
+        listContainer.innerHTML = '';
+
+        questions.forEach((q, idx) => {
+            const row = document.createElement('div');
+            row.className = 'status-row';
+            let statusText = '미입력';
+            let hasData = false;
+
+            if(q.type === 'choice') {
+                if(savedAnswers[q.id]) { statusText = `답 ${savedAnswers[q.id]}번`; hasData = true; }
+            } else if(q.type === 'subjective') {
+                if(savedAnswers[q.id] && savedAnswers[q.id].trim() !== '') { statusText = `입력완료 (${savedAnswers[q.id]})`; hasData = true; }
+            } else if(q.type === 'task20') {
+                if(savedAnswers[20] === '가입 완료') { statusText = '작업 완료'; hasData = true; }
+            } else if(q.type === 'task21') {
+                if(savedAnswers[21] === '인증 완료') { statusText = '인증 완료'; hasData = true; }
+            }
+
+            if(hasData) row.classList.add('done');
+            row.innerHTML = `<span style="font-weight:bold;">문제 ${q.id}</span><span>${statusText}</span>`;
+            row.onclick = () => { currentIdx = idx; closeModal(); renderQuestion(); };
+            listContainer.appendChild(row);
+        });
+
+        document.getElementById('statusModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('statusModal').classList.remove('active'); }
+
+    function submitExam() {
+        if(!confirm("정말로 답안을 제출하고 시험을 종료하시겠습니까?\n제출 후에는 수정할 수 없습니다.")) return;
+
+        let savedCount = 0;
+        questions.forEach(q => {
+            if(q.type === 'choice' || q.type === 'subjective') {
+                if(savedAnswers[q.id] !== undefined && savedAnswers[q.id].toString().trim() !== '') savedCount++;
+            } else if(q.type === 'task20' && savedAnswers[20] === '가입 완료') { savedCount++;
+            } else if(q.type === 'task21' && savedAnswers[21] === '인증 완료') { savedCount++; }
+        });
+        let emptyCount = questions.length - savedCount;
+
+        closeModal();
+        document.getElementById('examMainContainer').style.display = 'none';
+        document.getElementById('fullscreenAppLayer').style.display = 'none';
+
+        document.getElementById('finalCategory').innerText = userData.category;
+        document.getElementById('finalName').innerText = userData.name;
+        document.getElementById('resSaved').querySelector('span').innerText = `${savedCount}건`;
+        document.getElementById('resEmpty').querySelector('span').innerText = `${emptyCount}건`;
+        
+        document.getElementById('finishScreen').style.display = 'flex';
+        alert('제출이 정상적으로 완료되었습니다. 시험을 종료합니다.');
+    }
+
+    function showAnswerReportTable() {
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = '';
+
+        questions.forEach(q => {
+            const tr = document.createElement('tr');
+            
+            let userAnsRaw = savedAnswers[q.id];
+            let userAnsText = '미입력';
+            let isCorrect = false;
+
+            if(userAnsRaw !== undefined && userAnsRaw !== '') {
+                if(q.type === 'choice') {
+                    userAnsText = `${userAnsRaw}번`;
+                    isCorrect = (parseInt(userAnsRaw) === q.answer);
+                } else if(q.type === 'subjective') {
+                    userAnsText = userAnsRaw.toString().trim();
+                    isCorrect = (userAnsText.toLowerCase() === q.answer.toString().toLowerCase());
+                } else {
+                    userAnsText = userAnsRaw;
+                    isCorrect = (userAnsRaw === q.answer);
+                }
+            }
+
+            let correctAnsText = '';
+            if(q.type === 'choice') {
+                correctAnsText = `${q.answer}번`;
+            } else {
+                correctAnsText = q.answer;
+            }
+
+            let resultColumn = '';
+            if(isCorrect) {
+                resultColumn = `<span class="text-correct">O</span>`;
+            } else {
+                resultColumn = `<span class="text-wrong">X</span>`;
+                tr.className = 'wrong-row';
+            }
+
+            tr.innerHTML = `
+                <td><strong>${q.id}</strong></td>
+                <td>${userAnsText}</td>
+                <td>${correctAnsText}</td>
+                <td>${resultColumn}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('reportSection').style.display = 'block';
+        document.getElementById('btnCheckAnswers').style.display = 'none';
+        
+        setTimeout(() => {
+            document.getElementById('reportSection').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+</script>
+</body>
+</html>
